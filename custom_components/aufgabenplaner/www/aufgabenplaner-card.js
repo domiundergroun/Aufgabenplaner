@@ -2,7 +2,7 @@
 (() => {
   if (customElements.get("aufgabenplaner-card")) return;
 
-  const CARD_VERSION = "0.8.0";
+  const CARD_VERSION = "0.9.0";
   const LS_KEY = "aufgabenplaner_active_person";
   const LS_UP = "aufgabenplaner_hide_upcoming";
   const COLORS = ["#ef476f", "#f78c6b", "#ffb703", "#06d6a0", "#118ab2", "#7b5ea7", "#ec6ca8", "#4cc9f0"];
@@ -350,6 +350,15 @@
     @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
     @keyframes up { from { transform: translateY(30px); opacity: .4; } to { transform: none; opacity: 1; } }
     .sheet h3 { font-size: 1.2rem; margin-bottom: 14px; }
+    .acc {
+      display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 10px;
+      padding: 12px 14px; border: 0; border-radius: 14px; background: var(--soft); cursor: pointer;
+      font: inherit; font-size: .78rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+      color: var(--secondary-text-color); text-align: left;
+    }
+    .acc ha-icon { --mdc-icon-size: 20px; transition: transform .2s; }
+    .acc.open ha-icon { transform: rotate(180deg); }
+    .accbody { padding-top: 8px; }
     .sheet h4 { margin: 20px 0 8px; font-size: .78rem; letter-spacing: .07em; text-transform: uppercase; color: var(--secondary-text-color); }
     .shead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
     .shead h3 { margin: 0; }
@@ -1338,28 +1347,33 @@
             <button class="iconbtn" data-m="dellist" data-id="${esc(l.id)}"><ha-icon icon="mdi:delete-outline"></ha-icon></button></div>`;
         })
         .join("");
+      this._setOpen = this._setOpen || {};
+      const sect = (key, title, body) => {
+        const open = !!this._setOpen[key];
+        return `<button class="acc${open ? " open" : ""}" data-m="tog" data-id="${key}" aria-expanded="${open}"><span>${title}</span><ha-icon icon="mdi:chevron-down"></ha-icon></button>${open ? `<div class="accbody">${body}</div>` : ""}`;
+      };
       m.sheet.innerHTML = `
         <div class="shead"><h3>${this.t("settings")}</h3>
           <button class="iconbtn" data-m="close"><ha-icon icon="mdi:close"></ha-icon></button></div>
-        <h4>${this.t("persons")}</h4>${personRows}
-        <button class="add" data-m="newperson">＋ ${this.t("addPerson")}</button>
-        <h4>${this.t("lists")}</h4>${listRows}
-        <button class="add" data-m="newlist">＋ ${this.t("addList")}</button>
+        ${sect("persons", this.t("persons"), `${personRows}
+          <button class="add" data-m="newperson">＋ ${this.t("addPerson")}</button>`)}
+        ${sect("lists", this.t("lists"), `${listRows}
+          <button class="add" data-m="newlist">＋ ${this.t("addList")}</button>`)}
         ${
           s.persons.length
-            ? `<h4>${this.t("adjust")}</h4>
+            ? sect("adjust", this.t("adjust"), `
           <div class="field"><select class="inp" data-a="person">${s.persons.map((p) => `<option value="${esc(p.id)}">${esc(p.emoji || "")} ${esc(p.name)}</option>`).join("")}</select></div>
           <div class="row" style="margin-bottom:8px"><input class="inp" style="width:130px;flex:none" type="number" data-a="amount" placeholder="${this.t("amount")}">
             <input class="inp" data-a="reason" placeholder="${this.t("reason")}" maxlength="80"></div>
           <div class="hint" style="margin:0 0 10px">${this.t("adjustHint")}</div>
-          <button class="btn primary" data-m="adjust">${this.t("apply")}</button>`
+          <button class="btn primary" data-m="adjust">${this.t("apply")}</button>`)
             : ""
         }
-        <h4>${this.t("backup")}</h4>
-        <div class="hint" style="margin:0 0 10px">${this.t("backupHint")}</div>
-        <div class="row" style="gap:8px;flex-wrap:wrap">
-          <button class="btn" data-m="export">⬇️ ${this.t("exportBtn")}</button>
-          <button class="btn" data-m="import">⬆️ ${this.t("importBtn")}</button></div>`;
+        ${sect("backup", this.t("backup"), `
+          <div class="hint" style="margin:0 0 10px">${this.t("backupHint")}</div>
+          <div class="row" style="gap:8px;flex-wrap:wrap">
+            <button class="btn" data-m="export">⬇️ ${this.t("exportBtn")}</button>
+            <button class="btn" data-m="import">⬆️ ${this.t("importBtn")}</button></div>`)}`;
       m.sheet.oninput = null;
       m.sheet.onchange = null;
       m.sheet.onclick = async (ev) => {
@@ -1368,6 +1382,7 @@
         const id = b.dataset.id;
         switch (b.dataset.m) {
           case "close": this._modalClose(); break;
+          case "tog": this._setOpen[id] = !this._setOpen[id]; this._openSettings(); break;
           case "export": {
             const backup = await this._call("aufgabenplaner/export");
             if (!backup) break;

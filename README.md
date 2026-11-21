@@ -74,7 +74,7 @@ Im Karten-Dialog erscheint sie als „Aufgabenplaner Übersicht".
 
 ## Datensicherung
 
-In den Einstellungen (Zahnrad) gibt es den Abschnitt **Datensicherung**: „Sicherung exportieren" speichert alle
+In den Einstellungen (Zahnrad) sind die Bereiche Personen, Listen, Sterne anpassen und Datensicherung standardmäßig eingeklappt und lassen sich per Tipp aufklappen. Dort gibt es den Abschnitt **Datensicherung**: „Sicherung exportieren" speichert alle
 Daten (Personen, Listen, Aufgaben, Vorlagen, Sterne samt Verlauf) als JSON-Datei. „Sicherung importieren" spielt
 eine solche Datei wieder ein und **ersetzt dabei alle aktuellen Daten** (nur Administratoren). Die Datei wird vor
 dem Import geprüft; ist sie ungültig, bleibt alles unverändert. Verknüpfungen zu Home-Assistant-Benutzern bleiben
