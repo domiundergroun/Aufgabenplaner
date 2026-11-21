@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 DOMAIN = "aufgabenplaner"
-VERSION = "0.7.0"
+VERSION = "0.8.0"
 
 STORAGE_KEY = f"{DOMAIN}.data"
 STORAGE_VERSION = 1

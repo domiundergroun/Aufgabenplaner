@@ -298,6 +298,21 @@ def ws_template_delete(hass, connection, msg):
     )
 
 
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/export"})
+@callback
+def ws_export(hass, connection, msg):
+    _run(hass, connection, msg, lambda m: m.planner.export_data())
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {vol.Required("type"): f"{DOMAIN}/import", vol.Required("backup"): dict}
+)
+@callback
+def ws_import(hass, connection, msg):
+    _run(hass, connection, msg, lambda m: m.mutate(m.planner.import_data, msg["backup"]))
+
+
 COMMANDS = (
     ws_get,
     ws_subscribe,
@@ -314,6 +329,8 @@ COMMANDS = (
     ws_stars_adjust,
     ws_template_save,
     ws_template_delete,
+    ws_export,
+    ws_import,
 )
 
 

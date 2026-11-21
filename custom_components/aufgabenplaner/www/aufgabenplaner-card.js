@@ -2,7 +2,7 @@
 (() => {
   if (customElements.get("aufgabenplaner-card")) return;
 
-  const CARD_VERSION = "0.7.0";
+  const CARD_VERSION = "0.8.0";
   const LS_KEY = "aufgabenplaner_active_person";
   const LS_UP = "aufgabenplaner_hide_upcoming";
   const COLORS = ["#ef476f", "#f78c6b", "#ffb703", "#06d6a0", "#118ab2", "#7b5ea7", "#ec6ca8", "#4cc9f0"];
@@ -30,6 +30,10 @@
       adjust: "Sterne anpassen", adjustHint: "Negative Zahl, um Sterne einzulösen.", amount: "Anzahl",
       reason: "Grund (optional)", apply: "Anwenden", adjustment: "Anpassung",
       who: "Wer hat es erledigt?", undo: "Rückgängig",
+      backup: "Datensicherung", exportBtn: "Sicherung exportieren", importBtn: "Sicherung importieren",
+      backupHint: "Exportiert alles (Personen, Listen, Aufgaben, Vorlagen, Sterne) als Datei. Beim Import werden alle aktuellen Daten ersetzt (nur Administratoren).",
+      confirmImport: "Alle aktuellen Daten werden durch die Sicherung ersetzt. Fortfahren?",
+      importDone: "Sicherung importiert", importFailed: "Die Datei ist keine gültige Sicherung.", exported: "Sicherung gespeichert",
       confirmDelete: "„{n}“ wirklich löschen?",
       removed: "„{n}“ gelöscht",
       skipped: "„{n}“ entfernt – die nächste Wiederholung bleibt",
@@ -70,6 +74,10 @@
       adjust: "Adjust stars", adjustHint: "Use a negative number to redeem stars.", amount: "Amount",
       reason: "Reason (optional)", apply: "Apply", adjustment: "Adjustment",
       who: "Who did it?", undo: "Undo",
+      backup: "Backup", exportBtn: "Export backup", importBtn: "Import backup",
+      backupHint: "Exports everything (people, lists, tasks, templates, stars) to a file. Importing replaces all current data (administrators only).",
+      confirmImport: "All current data will be replaced by the backup. Continue?",
+      importDone: "Backup imported", importFailed: "This file is not a valid backup.", exported: "Backup saved",
       confirmDelete: "Really delete “{n}”?",
       removed: "“{n}” deleted",
       skipped: "“{n}” removed – the next repeat stays",
@@ -1346,7 +1354,12 @@
           <div class="hint" style="margin:0 0 10px">${this.t("adjustHint")}</div>
           <button class="btn primary" data-m="adjust">${this.t("apply")}</button>`
             : ""
-        }`;
+        }
+        <h4>${this.t("backup")}</h4>
+        <div class="hint" style="margin:0 0 10px">${this.t("backupHint")}</div>
+        <div class="row" style="gap:8px;flex-wrap:wrap">
+          <button class="btn" data-m="export">⬇️ ${this.t("exportBtn")}</button>
+          <button class="btn" data-m="import">⬆️ ${this.t("importBtn")}</button></div>`;
       m.sheet.oninput = null;
       m.sheet.onchange = null;
       m.sheet.onclick = async (ev) => {
@@ -1355,6 +1368,36 @@
         const id = b.dataset.id;
         switch (b.dataset.m) {
           case "close": this._modalClose(); break;
+          case "export": {
+            const backup = await this._call("aufgabenplaner/export");
+            if (!backup) break;
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `aufgabenplaner-backup-${(this._state.today || "").slice(0, 10) || "export"}.json`;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+            this._toast(this.t("exported"));
+            break;
+          }
+          case "import": {
+            const inp = document.createElement("input");
+            inp.type = "file";
+            inp.accept = ".json,application/json";
+            inp.onchange = async () => {
+              const file = inp.files && inp.files[0];
+              if (!file) return;
+              let backup;
+              try { backup = JSON.parse(await file.text()); } catch (e) { this._toast(this.t("importFailed")); return; }
+              if (!backup || typeof backup !== "object" || backup.app !== "aufgabenplaner") { this._toast(this.t("importFailed")); return; }
+              if (!confirm(this.t("confirmImport"))) return;
+              const r = await this._call("aufgabenplaner/import", { backup });
+              if (r) { this._toast(this.t("importDone")); this._openSettings(); }
+            };
+            inp.click();
+            break;
+          }
           case "newperson": this._openPersonForm(null, true); break;
           case "editperson": this._openPersonForm(this._person(id), true); break;
           case "delperson": {

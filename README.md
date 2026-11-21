@@ -72,6 +72,14 @@ show_general: true       # optional: false blendet die Kachel „Allgemein" aus
 
 Im Karten-Dialog erscheint sie als „Aufgabenplaner Übersicht".
 
+## Datensicherung
+
+In den Einstellungen (Zahnrad) gibt es den Abschnitt **Datensicherung**: „Sicherung exportieren" speichert alle
+Daten (Personen, Listen, Aufgaben, Vorlagen, Sterne samt Verlauf) als JSON-Datei. „Sicherung importieren" spielt
+eine solche Datei wieder ein und **ersetzt dabei alle aktuellen Daten** (nur Administratoren). Die Datei wird vor
+dem Import geprüft; ist sie ungültig, bleibt alles unverändert. Verknüpfungen zu Home-Assistant-Benutzern bleiben
+erhalten, sollten dort aber auf demselben System gültig sein.
+
 ## Aufgaben wegwischen
 
 Eine offene Aufgabe lässt sich nach links oder rechts **wegwischen**. Einmalige Aufgaben werden dadurch gelöscht.

@@ -97,6 +97,83 @@ class Planner:
     def today(self) -> date:
         return self._today_fn()
 
+    # ------------------------------------------------------------ Datensicherung
+    BACKUP_APP = "aufgabenplaner"
+    BACKUP_FORMAT = 1
+
+    def export_data(self) -> dict[str, Any]:
+        """Alle Daten als Sicherung (JSON-tauglich)."""
+        import copy
+
+        return {
+            "app": self.BACKUP_APP,
+            "format": self.BACKUP_FORMAT,
+            "exported_at": self.now_iso(),
+            "data": copy.deepcopy(self.as_dict()),
+        }
+
+    def import_data(self, backup: Any) -> dict[str, int]:
+        """Sicherung einspielen und dabei ALLE bisherigen Daten ersetzen. Prüft die Struktur vorher."""
+        import copy
+
+        def bad(msg: str) -> PlannerError:
+            return PlannerError("invalid_backup", msg)
+
+        if not isinstance(backup, dict) or backup.get("app") != self.BACKUP_APP:
+            raise bad("Das ist keine Aufgabenplaner-Sicherung")
+        if not isinstance(backup.get("format"), int) or backup["format"] > self.BACKUP_FORMAT:
+            raise bad("Unbekanntes oder zu neues Sicherungsformat")
+        data = backup.get("data")
+        if not isinstance(data, dict):
+            raise bad("Sicherung enthält keine Daten")
+
+        def rows(key: str, required: tuple[str, ...]) -> list[dict[str, Any]]:
+            items = data.get(key, [])
+            if not isinstance(items, list):
+                raise bad(f"„{key}“ ist ungültig")
+            out = []
+            for item in items:
+                if not isinstance(item, dict) or any(
+                    not isinstance(item.get(r), str) or not item.get(r) for r in required
+                ):
+                    raise bad(f"Ungültiger Eintrag in „{key}“")
+                out.append(copy.deepcopy(item))
+            return out
+
+        persons = rows("persons", ("id", "name"))
+        lists = rows("lists", ("id", "name")) or [
+            {"id": "allgemein", "name": "Allgemein", "icon": "🏠", "owner": None}
+        ]
+        tasks = rows("tasks", ("id", "title", "list_id"))
+        templates = rows("templates", ("id", "title"))
+        ledger = rows("ledger", ("id", "person", "at"))
+
+        person_ids = {p["id"] for p in persons}
+        list_ids = {l["id"] for l in lists}
+        for l in lists:
+            if l.get("owner") not in person_ids:
+                l["owner"] = None
+        tasks = [t for t in tasks if t["list_id"] in list_ids]
+        for t in tasks:
+            if t.get("assignee") not in person_ids:
+                t["assignee"] = None
+            t["icon"] = _clean_icon(t.get("icon"))
+        for t in templates:
+            t["icon"] = _clean_icon(t.get("icon"))
+        ledger = [e for e in ledger if e["person"] in person_ids]
+
+        self.persons[:] = persons
+        self.lists[:] = lists
+        self.tasks[:] = tasks
+        self.templates[:] = templates
+        self.ledger[:] = ledger
+        return {
+            "persons": len(persons),
+            "lists": len(lists),
+            "tasks": len(tasks),
+            "templates": len(templates),
+        }
+
     def now_iso(self) -> str:
         return self._now_fn().isoformat(timespec="seconds")
 
