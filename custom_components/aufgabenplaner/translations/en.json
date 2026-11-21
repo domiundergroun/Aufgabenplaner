@@ -1,0 +1,54 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Aufgabenplaner",
+        "description": "Aufgabenplaner will be set up. You manage people, lists and tasks afterwards directly in the dashboard card."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Aufgabenplaner is already set up."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "stars": { "name": "Stars" },
+      "today_open": { "name": "Open today" }
+    }
+  },
+  "services": {
+    "add_task": {
+      "name": "Add task",
+      "description": "Creates a new task, optionally recurring.",
+      "fields": {
+        "title": { "name": "Title", "description": "What needs doing?" },
+        "list": { "name": "List", "description": "List name. Default: first shared list." },
+        "stars": { "name": "Stars", "description": "Stars awarded on completion." },
+        "assignee": { "name": "Assignee", "description": "Person name (empty = anyone)." },
+        "icon": { "name": "Icon", "description": "Icon name, e.g. watering-can, vacuum, broom or paw." },
+        "due": { "name": "Due", "description": "Date of the first occurrence." },
+        "repeat": { "name": "Repeat", "description": "none, daily, weekly or monthly." },
+        "weekdays": { "name": "Weekdays", "description": "Only for weekly repetition." },
+        "interval": { "name": "Interval", "description": "Every n days/weeks/months." }
+      }
+    },
+    "complete_task": {
+      "name": "Complete task",
+      "description": "Checks off an open task and awards the stars.",
+      "fields": {
+        "task": { "name": "Task", "description": "Task title." },
+        "list": { "name": "List", "description": "Optional, if the title exists more than once." },
+        "person": { "name": "Person", "description": "Who gets the stars? Several names share them (in steps of 0.5). Default: the assigned person." }
+      }
+    },
+    "adjust_stars": {
+      "name": "Adjust stars",
+      "description": "Adds or removes stars manually, e.g. to redeem them.",
+      "fields": {
+        "person": { "name": "Person", "description": "Person name." },
+        "amount": { "name": "Amount", "description": "Negative number to redeem." },
+        "reason": { "name": "Reason", "description": "Shown in the log." }
+      }
+    }
+  }
+}

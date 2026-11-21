@@ -1,0 +1,54 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Aufgabenplaner einrichten",
+        "description": "Der Aufgabenplaner wird eingerichtet. Personen, Listen und Aufgaben verwaltest du danach direkt in der Dashboard-Karte."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Der Aufgabenplaner ist bereits eingerichtet."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "stars": { "name": "Sterne" },
+      "today_open": { "name": "Heute offen" }
+    }
+  },
+  "services": {
+    "add_task": {
+      "name": "Aufgabe hinzufügen",
+      "description": "Legt eine neue Aufgabe an, optional mit Wiederholung.",
+      "fields": {
+        "title": { "name": "Titel", "description": "Was ist zu tun?" },
+        "list": { "name": "Liste", "description": "Name der Liste. Standard: erste gemeinsame Liste." },
+        "stars": { "name": "Sterne", "description": "Sterne für die Erledigung." },
+        "assignee": { "name": "Zuständig", "description": "Name der Person (leer = egal wer)." },
+        "icon": { "name": "Symbol", "description": "Symbol-Name, z. B. watering-can, vacuum, broom oder paw." },
+        "due": { "name": "Fällig am", "description": "Datum der ersten Fälligkeit." },
+        "repeat": { "name": "Wiederholung", "description": "none, daily, weekly oder monthly." },
+        "weekdays": { "name": "Wochentage", "description": "Nur für wöchentliche Wiederholung." },
+        "interval": { "name": "Intervall", "description": "Alle n Tage/Wochen/Monate." }
+      }
+    },
+    "complete_task": {
+      "name": "Aufgabe erledigen",
+      "description": "Hakt eine offene Aufgabe ab und schreibt die Sterne gut.",
+      "fields": {
+        "task": { "name": "Aufgabe", "description": "Titel der Aufgabe." },
+        "list": { "name": "Liste", "description": "Optional, falls der Titel mehrfach vorkommt." },
+        "person": { "name": "Person", "description": "Wer bekommt die Sterne? Mehrere Namen teilen sich die Sterne (0,5er-Schritte). Standard: die zuständige Person." }
+      }
+    },
+    "adjust_stars": {
+      "name": "Sterne anpassen",
+      "description": "Bucht Sterne manuell zu oder ab, z. B. zum Einlösen.",
+      "fields": {
+        "person": { "name": "Person", "description": "Name der Person." },
+        "amount": { "name": "Anzahl", "description": "Negative Zahl zum Einlösen." },
+        "reason": { "name": "Grund", "description": "Wird im Protokoll angezeigt." }
+      }
+    }
+  }
+}

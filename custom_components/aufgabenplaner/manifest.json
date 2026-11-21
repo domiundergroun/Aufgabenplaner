@@ -1,0 +1,14 @@
+{
+  "domain": "aufgabenplaner",
+  "name": "Aufgabenplaner",
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": ["http", "frontend", "websocket_api"],
+  "documentation": "https://github.com/your-name/aufgabenplaner",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/your-name/aufgabenplaner/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "0.7.0"
+}

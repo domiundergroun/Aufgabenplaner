@@ -1,0 +1,92 @@
+add_task:
+  fields:
+    title:
+      required: true
+      example: "Blumen gießen"
+      selector:
+        text:
+    list:
+      example: "Allgemein"
+      selector:
+        text:
+    stars:
+      default: 1
+      selector:
+        number:
+          min: 0
+          max: 20
+          mode: box
+    assignee:
+      example: "Anna"
+      selector:
+        text:
+    icon:
+      example: "watering-can"
+      selector:
+        text:
+    due:
+      selector:
+        date:
+    repeat:
+      default: none
+      selector:
+        select:
+          options:
+            - none
+            - daily
+            - weekly
+            - monthly
+    weekdays:
+      selector:
+        select:
+          multiple: true
+          options:
+            - mon
+            - tue
+            - wed
+            - thu
+            - fri
+            - sat
+            - sun
+    interval:
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 52
+          mode: box
+
+complete_task:
+  fields:
+    task:
+      required: true
+      example: "Blumen gießen"
+      selector:
+        text:
+    list:
+      selector:
+        text:
+    person:
+      example: "Anna"
+      selector:
+        text:
+          multiple: true
+
+adjust_stars:
+  fields:
+    person:
+      required: true
+      example: "Anna"
+      selector:
+        text:
+    amount:
+      required: true
+      selector:
+        number:
+          min: -1000
+          max: 1000
+          mode: box
+    reason:
+      example: "Eis eingelöst"
+      selector:
+        text:
